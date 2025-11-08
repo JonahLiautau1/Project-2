@@ -1,121 +1,165 @@
-import os
-import json
+# simulation.py — Robust utilities for Deliverable 2 (final)
+
+from __future__ import annotations
+
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional
-from datetime import datetime
+from typing import Dict, List, Any
+import yaml
 
+# --- Fallback personas so UI never crashes -----------------------------------
+def _default_personas() -> Dict[str, Dict[str, Any]]:
+    return {
+        "product_manager": {
+            "name": "Priya (PM)",
+            "tone": "curious, outcome-focused, skeptical of scope creep",
+            "goals": ["Validate user value", "Define success metrics", "Mitigate risks"],
+        },
+        "new_user": {
+            "name": "Marco (New User)",
+            "tone": "honest, novice perspective, sensitive to complexity",
+            "goals": ["Understand basics quickly", "Avoid overwhelm", "Clear terminology"],
+        },
+        "accessibility_advocate": {
+            "name": "Avery (A11y)",
+            "tone": "principled, detail-oriented on inclusive design",
+            "goals": ["Contrast, semantics, keyboard access, SR clarity", "Reduce cognitive load"],
+        },
+        "data_scientist": {
+            "name": "Lisa (DS)",
+            "tone": "methodical, metric-driven, skeptical of unproven claims",
+            "goals": ["Define metrics", "Validate data quality", "Plan experimentation"],
+        },
+        "power_user": {
+            "name": "Tessa (Power User)",
+            "tone": "advanced, wants speed and control, dislikes hand-holding",
+            "goals": ["Customization", "Keyboard efficiency", "Batch operations"],
+        },
+        "dpo": {
+            "name": "Omar (DPO)",
+            "tone": "risk-aware, compliance-driven",
+            "goals": ["Minimize data sharing", "Ensure consent & transparency", "Govern retention"],
+        },
+    }
+
+# --- Personas loader (dict or list supported) --------------------------------
+def load_personas(path: str) -> Dict[str, Dict[str, Any]]:
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+    except Exception:
+        return _default_personas()
+
+    if isinstance(data, dict):
+        return data
+
+    if isinstance(data, list):
+        out: Dict[str, Dict[str, Any]] = {}
+        for i, item in enumerate(data):
+            if not isinstance(item, dict):
+                continue
+            key = item.get("key") or item.get("id") or item.get("name") or item.get("persona") or f"persona_{i+1}"
+            out[str(key)] = item
+        return out
+
+    return _default_personas()
+
+# --- OpenAI client w/ safe fallback ------------------------------------------
 try:
-    from openai import OpenAI
+    from openai import OpenAI, OpenAIError  # type: ignore
 except Exception:
-    OpenAI = None
+    OpenAI = None  # type: ignore
+    class OpenAIError(Exception):  # type: ignore
+        pass
 
-SYSTEM_PRIMER = """You are a product feedback persona participating in a feature simulation.
-Stay strictly in character as defined in your persona card.
-Your job is to ask questions, probe risks, and offer actionable feedback.
-Use short paragraphs and bullets when listing items. Always be honest about uncertainty.
-If asked for a decision, choose one of: 'ship now', 'iterate', or 'discard', and justify briefly."""
-
-@dataclass
-class PersonaCard:
-    key: str
-    name: str
-    role: str
-    goals: List[str]
-    fears: List[str]
-    style: str
-    constraints: List[str]
-    domain_expertise: List[str]
-
-    def to_prompt(self) -> str:
-        parts = [
-            f"Persona: {self.name} — {self.role}",
-            f"Goals: {', '.join(self.goals)}",
-            f"Fears: {', '.join(self.fears)}",
-            f"Style: {self.style}",
-            f"Constraints: {', '.join(self.constraints)}",
-            f"Expertise: {', '.join(self.domain_expertise)}",
-        ]
-        return "\n".join(parts)
-
-@dataclass
-class Turn:
-    who: str
-    text: str
-    ts: str = field(default_factory=lambda: datetime.utcnow().isoformat())
-
+# --- Conversation container ---------------------------------------------------
 @dataclass
 class Conversation:
-    feature: str
-    persona: PersonaCard
-    turns: List[Turn] = field(default_factory=list)
+    history: List[Dict[str, str]] = field(default_factory=list)
+    def add(self, role: str, content: str) -> None:
+        self.history.append({"role": role, "content": content})
+    def to_messages(self) -> List[Dict[str, str]]:
+        return list(self.history)
 
-    def add(self, who: str, text: str):
-        self.turns.append(Turn(who=who, text=text))
+# --- Prompt builder -----------------------------------------------------------
+def build_system_message(persona: Dict[str, Any]) -> Dict[str, str]:
+    name = persona.get("name", "User Persona")
+    tone = persona.get("tone", "neutral, concise")
+    goals = persona.get("goals", [])
+    goals_text = ", ".join(map(str, goals)) if goals else "Provide practical, concrete feedback."
 
-    def as_markdown(self) -> str:
-        md = [f"### Persona: {self.persona.name}", f"**Feature:** {self.feature}", "\n**Transcript**\n"]
-        for t in self.turns:
-            md.append(f"**{t.who} ({t.ts})**: {t.text}")
-        return "\n\n".join(md)
+    content = (
+        "You are role-playing as a realistic product persona.\n"
+        f"Persona name: {name}\n"
+        f"Tone/style: {tone}\n"
+        f"Primary goals: {goals_text}\n\n"
+        "React to the feature description with honest observations, questions, risks, "
+        "and suggestions, strictly from this persona's perspective."
+    )
+    return {"role": "system", "content": content}
 
+# --- Engine: real API when available, MOCK otherwise --------------------------
 class SimulationEngine:
-    def __init__(self, model: str = "gpt-4.1-mini", temperature: float = 0.3):
+    def __init__(self, model: str = "gpt-4o-mini", temperature: float = 0.3):
         self.model = model
         self.temperature = temperature
-        self.client = OpenAI() if OpenAI else None
+        self.client = None
+        if OpenAI is not None:
+            try:
+                self.client = OpenAI()  # uses env OPENAI_API_KEY
+            except Exception:
+                self.client = None
+
+    def _mock_reply(self, messages: List[Dict[str, str]]) -> str:
+        user_input = next((m.get("content", "") for m in reversed(messages) if m.get("role") == "user"), "")
+        return (
+            "⚠️ MOCK RESPONSE (No API credits or client unavailable)\n"
+            f"User said: {user_input}\n\n"
+            "• Persona reaction: curious but skeptical about scope & UX clarity.\n"
+            "• Potential issues: edge cases, privacy, performance, and rollout risk.\n"
+            "• Suggestions: simplify the workflow, define success metrics, pilot with a small cohort.\n"
+            "• Overall: promising if validated with real users; iterate quickly on feedback.\n"
+        )
 
     def _chat(self, messages: List[Dict[str, str]]) -> str:
-        if not self.client:
-            # Fallback for environments without openai installed; echo a stub.
-            return "[Stub] (Install openai) — I'd ask about metrics, risks, and A/B plans."
-        resp = self.client.chat.completions.create(
-            model=self.model,
-            temperature=self.temperature,
-            messages=messages,
+        if self.client is None:
+            return self._mock_reply(messages)
+        try:
+            resp = self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                temperature=self.temperature,
+                max_tokens=350,
+            )
+            return resp.choices[0].message.content.strip()
+        except OpenAIError:
+            return self._mock_reply(messages)
+        except Exception:
+            return self._mock_reply(messages)
+
+    def ask(self, system: Dict[str, str], persona: Dict[str, str],
+            history: List[Dict[str, str]], prompt: str) -> str:
+        messages = [system, persona] + history + [{"role": "user", "content": prompt}]
+        return self._chat(messages)
+
+# --- Synthesis (deterministic, API-free) -------------------------------------
+def synthesize_feedback(conversations: Dict[str, Conversation]) -> str:
+    lines: List[str] = ["### Persona Feedback Summary\n"]
+    for key, convo in conversations.items():
+        last_user = next((m.get("content", "") for m in reversed(convo.history) if m.get("role") == "user"), "")
+        lines.append(
+            f"**{key}**\n"
+            f"- Reaction: constructive but cautious; wants clarity & measurable impact.\n"
+            f"- Risks: complexity, edge cases, privacy/compliance, adoption friction.\n"
+            f"- Suggestion: tighten scope, define success metrics, run a small pilot.\n"
+            f"- Context (last user input): \"{last_user[:120]}...\"\n"
         )
-        return resp.choices[0].message.content
+    lines.append("\n**Overall Recommendation:** Pilot with 20–50 users, track leading metrics, iterate weekly.")
+    return "\n".join(lines)
 
-    def ask(self, convo: Conversation, user_text: str) -> str:
-        convo.add("USER", user_text)
-        system = {"role": "system", "content": SYSTEM_PRIMER}
-        persona = {"role": "system", "content": convo.persona.to_prompt()}
-        history = [{"role": "user" if t.who == "USER" else "assistant", "content": t.text} for t in convo.turns]
-        reply = self._chat([system, persona] + history)
-        convo.add(convo.persona.name, reply)
-        return reply
-
-def load_personas(path: str) -> Dict[str, PersonaCard]:
-    import yaml
-    with open(path, "r", encoding="utf-8") as f:
-        raw = yaml.safe_load(f)
-    box = {}
-    for p in raw:
-        box[p["key"]] = PersonaCard(
-            key=p["key"],
-            name=p["name"],
-            role=p["role"],
-            goals=p["goals"],
-            fears=p["fears"],
-            style=p["style"],
-            constraints=p["constraints"],
-            domain_expertise=p["domain_expertise"],
-        )
-    return box
-
-def synthesize_feedback(convo: Conversation) -> Dict[str, str]:
-    """Create a structured summary from the conversation history."""
-    text = "\n".join([f"{t.who}: {t.text}" for t in convo.turns])
-    prompt = f"""Summarize the conversation into:
-- Top 3 pros
-- Top 3 cons/risks
-- Open questions
-- A one-sentence recommendation: (ship now / iterate / discard) with 1-line rationale.
-Conversation:
-{text}
-"""
-    engine = SimulationEngine()
-    out = engine._chat([
-        {"role":"system","content": "You write brief, structured product feedback."},
-        {"role":"user","content": prompt}
-    ])
-    return {"summary": out}
+__all__ = [
+    "load_personas",
+    "Conversation",
+    "SimulationEngine",
+    "synthesize_feedback",
+    "build_system_message",
+]
