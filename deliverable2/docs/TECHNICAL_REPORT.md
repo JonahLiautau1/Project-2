@@ -1,48 +1,52 @@
-# Technical Report — Algorithm & Design (Draft)
+# Deliverable 2 — Technical Report
 
-## 1. Architecture Overview
-- **UI**: Streamlit app (`app.py`) renders a multi-chat workspace; each persona has its own session.
-- **Engine**: `SimulationEngine` wraps OpenAI Chat Completions with a system primer and persona card constraints.
-- **Personas**: YAML-backed, with goals/fears/style/constraints shaping behavior; users can upload custom YAML.
-- **Synthesis**: After some turns, we call the model to produce a structured summary (pros/cons/open questions/recommendation).
+## Executive Summary
+This beta demonstrates an agentic, persona-based simulation tool that product teams can use to evaluate features before build. Users enter a feature, select personas, run live conversations, and generate a synthesis. When API credits are unavailable, the app falls back to MOCK responses to ensure the full experience is demoable.
 
-## 2. Persona Modeling
-Each persona card has: `name, role, goals, fears, style, constraints, domain_expertise`.
-At runtime, we inject:
-1) A global system primer describing the task;
-2) The selected persona card;
-3) The running chat history.
+## Architecture
+- **UI (Streamlit):** feature input, persona selection, live conversations, synthesis.
+- **Engine (`simulation.py`):** OpenAI-backed chat with robust fallback to MOCK.
+- **Personas Loader:** accepts YAML as dict **or** list; defaults provided if file missing/invalid.
+- **State:** one `Conversation` per persona stored in `st.session_state`.
 
-This yields consistent persona behavior while allowing flexible prompts.
+## Simulation Algorithm
+1. Build a **system** message from persona metadata (tone, goals).
+2. Add a persona-scoped **feature** system message.
+3. Append **history** per persona and the new **user** prompt.
+4. Engine calls OpenAI (if available) or returns a contextual **MOCK** reply.
+5. Synthesis aggregates concerns, risks, and recommendations across personas.
 
-## 3. Conversation Loop
-For each chat:
-- User types a message (e.g., “List top 3 risks”).
-- Engine composes messages = [system, persona, history] and requests a completion.
-- Response is appended; UI redraws.
+## Live Conversation Capabilities
+- Multi-persona selection (1–4)
+- Real-time follow-ups
+- Deterministic synthesis (no API required)
+- Personas upload via YAML
 
-## 4. Feedback Synthesis
-We convert the chat transcript to a single string and ask a small model for:
-- Top 3 pros, Top 3 cons/risks
-- Open questions
-- Single-sentence recommendation
+## Use Cases & Examples
+- **Scenario 1 — Dark Mode:** Priya (PM), Marco (New User), Avery (A11y) → [log](interactions/scenario1_dark_mode.md)
+- **Scenario 2 — Onboarding:** Tessa (Power User), Lisa (DS) → [log](interactions/scenario2_onboarding.md)
+- **Scenario 3 — Data Sharing:** Omar (DPO), Priya (PM), Marco (New User) → [log](interactions/scenario3_data_sharing.md)
+- **Scenario 4 — Notifications:** Lisa (DS), Tessa (Power User) → [log](interactions/scenario4_notifications.md)
 
-## 5. Decision-Making Process
-- The persona cards bias the analysis (e.g., DPO emphasizes retention/consent).
-- The global primer enforces a standard output style.
-- The user can solicit an explicit decision at any time; synthesis also proposes one.
+## Insights (Cross-Scenario)
+- Recurring needs for clarity, discoverability, and measurable outcomes.
+- A11y and DPO personas surface risks early (contrast, semantics, consent, retention).
+- Power users request customization and speed; new users need progressive disclosure.
 
-## 6. Extensibility
-- Add personas to `personas.yaml` or upload a custom YAML at runtime.
-- Swap the chat model, adjust temperature, or add tools (retrieval, calculators) in `SimulationEngine`.
-- Export: you can save transcripts to Markdown (future work item).
+## Recommendations
+- Start with a **small pilot** (20–50 users); instrument leading metrics.
+- Tighten copy, reduce cognitive load; clear defaults + safe fallbacks.
+- Make categories and toggles more discoverable; define success metrics up front.
 
-## 7. Limitations / Future Enhancements
-- Determinism is limited; consider function-calling for structured outputs.
-- No backend persistence yet; add a DB or local JSON logs.
-- Single-turn summarizer; could support multi-persona cross-review panels.
-- Add automated evaluations (toxicity, hallucination guards).
+## Instructor Feedback & Responses
+- **Depth & Design:** Added architecture and algorithm sections.
+- **Diversity of personas:** Included PM, DS, DPO, A11y, Power User, New User.
+- **Error handling:** Implemented MOCK fallback and .env loading.
+- **Live UI:** Added dynamic persona selection and history-based follow-ups.
 
-## 8. Security & Privacy
-- Keep secrets in `.env` (never commit).
-- Avoid sending sensitive data in prompts; consider redaction middleware.
+## Future Enhancements
+- Roundtable mode (personas react to each other)
+- RAG over product docs; export to PDF
+- Persona scoring and satisfaction metrics
+- Cloud deployment and auth (Deliverable 3)
+
