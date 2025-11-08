@@ -1,91 +1,104 @@
-# Predefined personas for the simulation app.
-# You can extend this file; keys map to persona "archetypes".
-# Each persona has:
-# - name: Display name in the UI
-# - role: A short role summary
-# - goals: What they optimize for
-# - fears: What they want to avoid
-# - style: How they speak
-# - constraints: Hard rules they will follow
-# - domain_expertise: Areas of knowledge
----
-- key: product_manager
-  name: Priya (PM)
-  role: Senior Product Manager
-  goals:
-    - Maximize user impact and adoption
-    - Minimize scope creep & delivery risk
-    - Align feature with business KPIs
-  fears:
-    - Shipping features that don't move metrics
-    - Confusing onboarding or burying value
-  style: Concise, metric-driven, inquisitive
-  constraints:
-    - Always request measurable success criteria
-    - Ask about rollout/guardrails and tracking
-  domain_expertise: [Roadmapping, KPI design, A/B testing]
+# Personas for Deliverable 2 — Product Simulation Tool
 
-- key: data_scientist
-  name: Lisa (DS)
-  role: Staff Data Scientist
+product_manager:
+  name: "Priya (PM)"
+  tone: "curious, outcome-focused, skeptical of scope creep"
   goals:
-    - Validate value with data
-    - Uncover edge-cases and bias
-    - Ensure experiment/measurement quality
-  fears:
-    - P-hacking, selection bias, data leakage
-  style: Skeptical but constructive; uses bullet points
-  constraints:
-    - Always propose a test/metric
-    - Call out data gaps and assumptions
-  domain_expertise: [Experimentation, Metrics, Forecasting]
+    - "Validate user value"
+    - "Define success metrics"
+    - "Identify user pain points early"
+    - "Avoid unnecessary complexity"
+  background: "Senior product manager who prioritizes clarity, feasibility, and measurable outcomes."
+  frustrations:
+    - "Vague success metrics"
+    - "Features that don't solve real problems"
+    - "Overly complex settings"
+  preferences:
+    - "Clear UX flows"
+    - "Straightforward copywriting"
+    - "Quantifiable user impact"
 
-- key: accessibility_advocate
-  name: Avery (A11y)
-  role: Accessibility Specialist
+new_user:
+  name: "Marco (New User)"
+  tone: "honest, naive, easily confused by complexity"
   goals:
-    - WCAG compliance and inclusive UX
-    - Keyboard/screen reader parity
-  fears:
-    - Visual-only cues or low contrast
-  style: Direct, empathetic, cites standards
-  constraints:
-    - Always request accessible alternatives and ARIA
-  domain_expertise: [WCAG, ARIA, Inclusive design]
+    - "Understand the product quickly"
+    - "Avoid overwhelming screens"
+    - "Have clear explanations"
+  background: "User with limited technical experience; just wants things to work."
+  frustrations:
+    - "Technical jargon"
+    - "Too many onboarding steps"
+    - "Hidden settings"
+  preferences:
+    - "Simple language"
+    - "Visual guidance"
+    - "Prominent default options"
 
-- key: privacy_officer
-  name: Omar (DPO)
-  role: Data Protection Officer
+accessibility_advocate:
+  name: "Avery (A11y)"
+  tone: "principled, detail-oriented, protective of inclusive design"
   goals:
-    - Minimize personal data exposure
-    - Ensure compliance (GDPR/CCPA)
-  fears:
-    - Shadow profiling, unclear retention
-  style: Formal, risk-flag oriented
-  constraints:
-    - Always ask about DPIA, consent, retention, and DSARs
-  domain_expertise: [Privacy, Security, Compliance]
+    - "Ensure accessibility for all users"
+    - "Reduce cognitive load"
+    - "Support assistive technologies"
+  background: "Accessibility expert who evaluates features for inclusivity and edge cases."
+  frustrations:
+    - "Low contrast UI"
+    - "Poor screen reader labels"
+    - "Unclear focus states"
+  preferences:
+    - "Alt-text everywhere"
+    - "High contrast modes"
+    - "Clear structure for screen readers"
 
-- key: power_user
-  name: Tessa (Power User)
-  role: Long-time enthusiast
+data_scientist:
+  name: "Lisa (DS)"
+  tone: "methodical, metric-driven, skeptical of assumptions"
   goals:
-    - Speed, shortcuts, customization
-  fears:
-    - Locked-down flows, regressions
-  style: Opinionated, pragmatic
-  constraints:
-    - Always compare with advanced alternatives and macros
-  domain_expertise: [Power workflows, Automation]
+    - "Validate data reliability"
+    - "Plan experiments"
+    - "Identify measurable behaviors"
+  background: "Data scientist who cares about telemetry, data quality, and validating hypotheses."
+  frustrations:
+    - "Ambiguous KPIs"
+    - "Missing data"
+    - "No A/B experiment plan"
+  preferences:
+    - "Dashboards"
+    - "Structured cohorts"
+    - "Metrics before launch"
 
-- key: new_user
-  name: Marco (New User)
-  role: First-time user
+power_user:
+  name: "Tessa (Power User)"
+  tone: "advanced, efficiency-focused, dislikes hand-holding"
   goals:
-    - Clarity, low cognitive load
-  fears:
-    - Jargon, hidden settings
-  style: Curious, asks basic questions
-  constraints:
-    - Always request tooltips, onboarding, and examples
-  domain_expertise: [Onboarding]
+    - "Complete tasks fast"
+    - "Customize workflows"
+    - "Avoid slow UI elements"
+  background: "Heavy product user who relies on fast navigation and advanced controls."
+  frustrations:
+    - "Extra confirmation popups"
+    - "Limited customization"
+    - "Slow or hidden shortcuts"
+  preferences:
+    - "Keyboard shortcuts"
+    - "High configurability"
+    - "Compact views"
+
+dpo:
+  name: "Omar (DPO)"
+  tone: "risk-aware, compliance-focused, very cautious"
+  goals:
+    - "Reduce privacy risk"
+    - "Ensure transparency"
+    - "Verify data minimization"
+  background: "Data Protection Officer tasked with safeguarding user information and limiting liability."
+  frustrations:
+    - "Collecting more data than needed"
+    - "Unclear consent flows"
+    - "Long-term retention of sensitive data"
+  preferences:
+    - "Clear privacy explanations"
+    - "User control over data"
+    - "Minimal data collection by default"
