@@ -1,6 +1,6 @@
-# app.py  — Persona-based Feature Simulation (Beta, D2 Final)
-
+# app.py  — Persona-based Feature Simulation (Beta)
 import os
+import time
 import streamlit as st
 from dotenv import load_dotenv
 
