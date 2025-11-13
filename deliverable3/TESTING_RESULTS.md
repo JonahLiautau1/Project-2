@@ -30,7 +30,7 @@ pytest
 
 # 3. Results
 
-======================================== test session starts ========================================
+======================================= test session starts ========================================
 platform linux -- Python 3.12.1, pytest-8.4.2, pluggy-1.6.0
 rootdir: /workspaces/Project-2/deliverable3
 plugins: anyio-4.11.0
@@ -40,6 +40,7 @@ tests/test_personas.py .                                  [ 50%]
 tests/test_simulation_engine.py .                         [100%]
 
 ========================================= 2 passed in 0.15s =========================================
+
 
 
 ---
