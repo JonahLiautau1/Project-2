@@ -1,0 +1,26 @@
+[
+  {
+    "id": "persona_01",
+    "name": "Alicia Ramirez",
+    "profile": {
+      "age": 29,
+      "role": "Tech-Comfortable Mobile User",
+      "tech_level": "intermediate",
+      "tone": "friendly and concise",
+      "style": "practical, direct feedback",
+      "behavior": "Alicia quickly identifies usability problems and values speed."
+    }
+  },
+  {
+    "id": "persona_02",
+    "name": "Marcus Lee",
+    "profile": {
+      "age": 44,
+      "role": "Skeptical First-Time User",
+      "tech_level": "low",
+      "tone": "hesitant but honest",
+      "style": "critical, focuses on confusion points",
+      "behavior": "Marcus doubts new tools and points out unclear steps."
+    }
+  }
+]
