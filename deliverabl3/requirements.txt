@@ -1,0 +1,4 @@
+tinytroupe==0.4.0
+pytest
+python-dotenv
+loguru
