@@ -14,3 +14,8 @@ This deliverable contains a production-ready version of the TinyTroupe Simulatio
 ```bash
 pip install -r requirements.txt
 python app.py
+
+## How to Build Docker Image
+docker build -t simulation-app .
+docker run -p 7860:7860 simulation-app
+
