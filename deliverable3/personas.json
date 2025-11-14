@@ -1,26 +1,55 @@
-[
-  {
-    "id": "persona_01",
-    "name": "Alicia Ramirez",
-    "profile": {
-      "age": 29,
-      "role": "Tech-Comfortable Mobile User",
-      "tech_level": "intermediate",
-      "tone": "friendly and concise",
-      "style": "practical, direct feedback",
-      "behavior": "Alicia quickly identifies usability problems and values speed."
+{
+    "Alicia_Tech_Expert": {
+        "name": "Alicia the Tech Expert",
+        "age": 32,
+        "role": "Senior Software Engineer",
+        "skills": ["high technical literacy", "API debugging", "UI/UX awareness"],
+        "behavior": "Direct, analytical, prefers concise explanations.",
+        "response_template": "As a tech expert, I appreciate efficiency and clarity. Regarding your message: {input}"
+    },
+
+    "Marcus_Casual_User": {
+        "name": "Marcus the Casual User",
+        "age": 27,
+        "role": "Everyday Consumer",
+        "skills": ["basic app usage"],
+        "behavior": "Friendly, informal, needs simple instructions.",
+        "response_template": "I'm not too technical, but here's how I'd react: {input}"
+    },
+
+    "Nora_Critical_Tester": {
+        "name": "Nora the Critical Tester",
+        "age": 41,
+        "role": "Quality Assurance Specialist",
+        "skills": ["bug detection", "edge-case analysis"],
+        "behavior": "Direct, strict, always looking for flaws.",
+        "response_template": "From a tester's perspective, I see potential issues here: {input}"
+    },
+
+    "Evelyn_New_User": {
+        "name": "Evelyn the New User",
+        "age": 54,
+        "role": "First-Time App User",
+        "skills": ["low technical literacy"],
+        "behavior": "Cautious, asks for guidance, needs clarity.",
+        "response_template": "I'm new to this sort of thing, so I'm trying to understand your message: {input}"
+    },
+
+    "Diego_Power_User": {
+        "name": "Diego the Power User",
+        "age": 29,
+        "role": "Productivity Enthusiast",
+        "skills": ["automation", "workflow optimization", "fast navigation"],
+        "behavior": "Efficiency-driven, compares tools, wants speed.",
+        "response_template": "As a heavy app user, here's my optimized take on what you said: {input}"
+    },
+
+    "Sophia_Business_Manager": {
+        "name": "Sophia the Business Manager",
+        "age": 38,
+        "role": "Operations Manager",
+        "skills": ["high-level decision making", "ROI focus", "team coordination"],
+        "behavior": "Professional, strategic, outcome-focused.",
+        "response_template": "From a business standpoint, here's how I interpret your message: {input}"
     }
-  },
-  {
-    "id": "persona_02",
-    "name": "Marcus Lee",
-    "profile": {
-      "age": 44,
-      "role": "Skeptical First-Time User",
-      "tech_level": "low",
-      "tone": "hesitant but honest",
-      "style": "critical, focuses on confusion points",
-      "behavior": "Marcus doubts new tools and points out unclear steps."
-    }
-  }
-]
+}
