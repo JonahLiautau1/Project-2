@@ -103,3 +103,9 @@ No user authentication required
 
 🎉 8. Deployment Completed
 If the app loads and the persona dropdown appears, your deployment is successful.
+
+### 🚀 Live Deployment
+Your live simulation app is available at:
+
+👉 https://huggingface.co/spaces/YOUR_USERNAME/tinytroupe-simulator
+
