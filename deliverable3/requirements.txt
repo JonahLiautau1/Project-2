@@ -1,4 +1,1 @@
-tinytroupe==0.4.0
-pytest
-python-dotenv
-loguru
+gradio==3.44.3
