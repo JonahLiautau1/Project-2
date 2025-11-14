@@ -1,122 +1,105 @@
-# DEPLOYMENT GUIDE – Deliverable 3
-## Deploying the TinyTroupe Simulation App to HuggingFace Spaces
+
+# 🚀 DEPLOYMENT GUIDE  
+**TinyTroupe Simulation App – Deliverable 3**
+
+This guide explains how to deploy, rebuild, and maintain the TinyTroupe Simulation App on HuggingFace Spaces (Docker mode).
 
 ---
 
-# 1. Prerequisites
+# 📦 1. Requirements
+
 - HuggingFace account  
-- GitHub repo containing deliverable3  
-- Dockerfile (already included)  
-- requirements.txt  
+- A new Space (set to **Docker** hardware type)
+- GitHub repo containing the project files
+- Dockerfile present in root directory  
+- Internet connection
 
 ---
 
-# 2. Deployment Overview
+# 2. Installation (Local)
 
-The app runs inside a Docker container, so HuggingFace Spaces handles:
+Clone repository:
+```bash
+git clone https://github.com/yourusername/tinytroupe-simulator.git
+cd tinytroupe-simulator
+Install dependencies:
 
-- Building the Docker image  
-- Starting the container  
-- Monitoring logs  
-- Allowing restart on failure  
+bash
+Copy code
+pip install -r requirements.txt
+Run the app:
 
----
+bash
+Copy code
+python app.py
+# 3. Deploying on HuggingFace Spaces (Docker)
+Step 1 — Create Space
+Go to Spaces → New Space
 
-# 3. Step-by-Step Deployment
+Select:
 
-### Step 1 — Create a New HuggingFace Space
-1. Go to https://huggingface.co/spaces  
-2. Click **Create Space**  
-3. Choose:
-   - **Space SDK** → **Docker**
-   - **Name:** `your-username/tinytroupe-simulator`
-   - **Visibility:** Public  
+SDK: Docker
+Visibility: Public
+Name: tinytroupe-simulator
 
----
+Step 2 — Push Your Files
+Include:
 
-### Step 2 — Upload Your Deliverable 3 Files
-
-You must upload these files:
-
-```
 app.py
 simulation_engine.py
 personas.json
 requirements.txt
 Dockerfile
-utils/
-tests/
-```
+README.md
+Documentation files
 
-Upload them into the Space.
+Use Git:
 
----
+bash
+Copy code
+git remote add space https://huggingface.co/spaces/USERNAME/tinytroupe-simulator
+git push space main
+Step 3 — Let the container build
+HuggingFace will:
 
-### Step 3 — Wait for the Docker Build
+Install dependencies
+Build Docker image
+Expose port 7860
+Launch app
+Build usually takes 2–4 minutes.
 
-HuggingFace automatically runs:
+⚠️ 4. Common Deployment Issues
+Issue	Solution
+App stuck on “Building”	Reduce dependencies in requirements.txt
+RuntimeError: HfFolder import error	Replace huggingface_hub version
+App stuck on “Starting”	Ensure demo.launch(server_name="0.0.0.0")
+Permission denied for ~/.config	Avoid packages like matplotlib that create config folders
+JSON decode error	Validate personas.json using jsonlint.com
 
-```
-docker build .
-docker run container
-```
+🔄 5. Updating the Live Space
+After making changes:
 
-Watch the **Logs** panel for:
+bash
+Copy code
+git add .
+git commit -m "Update app"
+git push space main
+The container will automatically rebuild.
 
-- Installing dependencies  
-- Running the app  
-- Any Python errors  
+🔧 6. Maintenance & Monitoring
+Logs
+Open → “Logs” tab on HuggingFace.
+Rebuild Space
+Sometimes helpful after dependency edits.
+Click → Settings → Factory Reset
+Version Control
+Keep documentation and code in sync.
 
----
+🔐 7. Security Recommendations
+No external APIs → low risk
+Input sanitized via .replace()
+Personas stored locally (no database)
+No user authentication required
 
-### Step 4 — Testing Deployment
-
-In the Space:
-
-1. Open the app  
-2. Choose a persona  
-3. Enter a scenario  
-4. Confirm simulation output displays correctly  
-
----
-
-# 4. Updating the Space
-
-To deploy updates:
-
-- Push new changes to GitHub  
-- Re-upload changed files to HuggingFace  
-OR  
-- Connect HuggingFace Space to GitHub repo  
-
----
-
-# 5. Troubleshooting
-
-### ❗ Module Not Found  
-→ Make sure file path matches import in `app.py`.
-
-### ❗ Docker build fails  
-→ Check requirements.txt for version conflicts.
-
-### ❗ App crashes on startup  
-→ Check simulation_engine imports.  
-→ Look at error in HuggingFace logs.
-
----
-
-# 6. Backup Procedures
-
-- Keep `personas.json` backed up in GitHub  
-- Maintain a versioned CHANGELOG.md  
-- Log files rotate automatically  
-
----
-
-# 7. Security Notes
-
-- Do not commit API keys  
-- If using TinyTroupe API in future:
-  - Use `.env`
-  - Add variables under HuggingFace **“Secrets”**
-
+🎉 8. Deployment Completed
+If the app loads and the persona dropdown appears, your deployment is successful.
